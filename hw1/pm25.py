@@ -83,16 +83,16 @@ for count_iter in range(args.iteration):
 		while count_col+train_size+1<trainSet.shape[2]:
 			temp_sum = np.sum(coef*mod_trainSet[i,:,count_col:(count_col+train_size)])+bias
 			temp_sum = 2*(temp_sum-mod_trainSet[i,9,count_col+train_size+1])
-			if count_iter%10==0:
-				temp_sum_2 = temp_sum - mod_trainSet[i,9,count_col+train_size+1]
-				temp_sum_2 = temp_sum_2**2
-				loss += temp_sum_2
+			#if count_iter%10==0:
+			#	temp_sum_2 = temp_sum - mod_trainSet[i,9,count_col+train_size+1]
+			#	temp_sum_2 = temp_sum_2**2
+			#	loss += temp_sum_2
 			part_l_w += mod_trainSet[i,:,count_col:(count_col+train_size)]*temp_sum
 			part_l_w += coef*(2*args.regCoef)
 			part_l_b += temp_sum
 			count_col += 1
-	if count_iter%10==0:
-		print(count_iter, "MSE: ", loss/5652)		
+	#if count_iter%10==0:
+	#	print(count_iter, "MSE: ", loss/5652)		
 	
 	# update coefficient and bias
 	if args.method == 0:
