@@ -1,2 +1,2 @@
 #!/bin/bash
-python test.py $1 $2 $3
+python spam_test.py $1 $2 $3
