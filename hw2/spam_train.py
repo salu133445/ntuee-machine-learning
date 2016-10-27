@@ -9,7 +9,7 @@ adaGradDelta_coef = 0.95
 # parser
 parser = argparse.ArgumentParser()
 parser.add_argument( "trainingData", help='file containing training data i.e. spam_train.csv' )
-parser.add_argument( "outputModel", help='the trained model i.e. mymodel.csv' )
+parser.add_argument( "outputModel", help='the trained model i.e. model' )
 parser.add_argument( "iteration", type=int, help='number of iterations' )
 parser.add_argument( "learningRate", type=float, help='learning rate of linear regression' )
 parser.add_argument( "regCoef", type=float, help='coefficient lambda for regularization ' )
@@ -65,6 +65,6 @@ for count_iteration in range( args.iteration ):
 		
 # write the trained model into a csv file
 if args.norm:
-	np.savetxt( args.outputModel, coef_weight_bias, delimiter=",", header="Normalized Logistic Regression" )
+	np.savetxt( args.outputModel+".csv", coef_weight_bias, delimiter=",", header="Normalized Logistic Regression" )
 else:
-	np.savetxt( args.outputModel, coef_weight_bias, delimiter=",", header="Unnormalization Logistic Regression" )
+	np.savetxt( args.outputModel+".csv", coef_weight_bias, delimiter=",", header="Unnormalization Logistic Regression" )

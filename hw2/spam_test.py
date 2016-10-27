@@ -6,7 +6,7 @@ coef_dim = 57
 
 # parser
 parser = argparse.ArgumentParser()
-parser.add_argument( "modelName", help='the model used for prediction i.e. mymodel.csv' )
+parser.add_argument( "modelName", help='the model used for prediction i.e. model' )
 parser.add_argument( "testData", help='file containing testing data i.e. spam_test.csv' )
 parser.add_argument( "outputCSV", help='file containing testing data i.e. test_X.csv' )
 args = parser.parse_args()
@@ -14,10 +14,10 @@ args = parser.parse_args()
 # read the model used for prediction
 testing_feature_matrix = np.genfromtxt( args.testData, delimiter=',', usecols=range( 1, coef_dim+1 ) )
 testing_feature_matrix = np.nan_to_num( testing_feature_matrix )
-model_coef_weight_bias = np.genfromtxt( args.modelName, delimiter=',', skip_header=1)
+model_coef_weight_bias = np.genfromtxt( args.modelName+".csv", delimiter=',', skip_header=1)
 model_coef_weight_bias = np.nan_to_num( model_coef_weight_bias )
 
-with open( args.modelName, 'r' ) as file:
+with open( args.modelName+".csv", 'r' ) as file:
    first_line = file.readline()
 if first_line[2] == 'N':
 	norm = 1
