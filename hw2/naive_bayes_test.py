@@ -8,7 +8,7 @@ other_coef_dim = 3
 
 # parser
 parser = argparse.ArgumentParser()
-parser.add_argument( "modelName", help='the model used for prediction i.e. mymodel.csv' )
+parser.add_argument( "modelName", help='the model used for prediction i.e. model' )
 parser.add_argument( "testData", help='file containing testing data i.e. spam_test.csv' )
 parser.add_argument( "outputCSV", help='file containing testing data i.e. test_X.csv' )
 
@@ -19,8 +19,8 @@ args = parser.parse_args()
 testing_feature_matrix = np.genfromtxt( args.testData, delimiter=',', usecols=range(1, coef_dim+1) )
 testing_word_char_feature_matrix = testing_feature_matrix[ :, 0:word_char_coef_dim ]
 testing_other_feature_matrix = testing_feature_matrix[ :, word_char_coef_dim:coef_dim ]
-model_big_lambda = np.genfromtxt( args.modelName, delimiter=',', usecols=range(0, word_char_coef_dim), skip_header = 2 )
-file = open( args.modelName, 'r' )
+model_big_lambda = np.genfromtxt( args.modelName+".csv", delimiter=',', usecols=range(0, word_char_coef_dim), skip_header = 2 )
+file = open( args.modelName+".csv", 'r' )
 file.readline()
 threshold = float(file.readline())	
 

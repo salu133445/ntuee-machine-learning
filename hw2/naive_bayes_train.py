@@ -9,7 +9,7 @@ other_coef_dim = 3
 # parser
 parser = argparse.ArgumentParser()
 parser.add_argument( "trainingData", help='file containing training data i.e. spam_train.csv' )
-parser.add_argument( "outputModel", help='the trained model i.e. mymodel.csv' )
+parser.add_argument( "outputModel", help='the trained model i.e. model' )
 parser.add_argument( "naiveLambda", type=float, help='threshold parameter of naive bayes classification' )
 
 args = parser.parse_args()
@@ -43,4 +43,4 @@ for idx_coef in range( word_char_coef_dim ):
 	log_big_lambda[0, idx_coef] = np.log( P_x_false_given_spam / P_x_false_given_not_spam )
 	
 # write the trained model into a csv file
-np.savetxt( args.outputModel, log_big_lambda, delimiter=",", header="# Model: Naive Bayes Classifier\n"+"{:.16f}".format(threshold), comments='')
+np.savetxt( args.outputModel+".csv", log_big_lambda, delimiter=",", header="# Model: Naive Bayes Classifier\n"+"{:.16f}".format(threshold), comments='')
