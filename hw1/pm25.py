@@ -9,7 +9,7 @@ import argparse
 #    regCoef        coefficient lambda for regularization
 #    method         0-Vanilla GD, 1-AdaGrad, 2-AdaDelta
 #    --norm         1-Yes, 0-No: normalize training data while training
-#    --wCB          1-Yes, 0-No: write coefficient and bias into a file named "coef_iteration_regcoef_method.csv"
+#    --wcb          1-Yes, 0-No: write coefficient and bias into a file named "coef_iteration_regcoef_method.csv"
 # Output: "ans_iteration_regcoef_method.csv" containing prediction result of testing file
 
 
@@ -113,7 +113,7 @@ for count_iter in range(args.iteration):
 		w_delta_runningAveg = adaGradDelta_coef*w_delta_runningAveg + (1-adaGradDelta_coef)*(w_delta**2)
 		bias_delta_runningAveg = adaGradDelta_coef*bias_delta_runningAveg + (1-adaGradDelta_coef)*(bias_delta**2)
 
-if args.wCB:
+if args.wcb:
 	np.savetxt('coef_'+str(args.iteration)+'_'+str(args.learingRate)+'_'+str(args.regCoef)+'.csv', coef, delimiter=",")
 	file = open('bias_'+str(args.iteration)+'_'+str(args.learingRate)+'_'+str(args.regCoef)+'.csv', 'w', encoding = 'UTF-8')
 	file.truncate()
@@ -126,7 +126,7 @@ if args.wCB:
 matrix_test = np.genfromtxt(args.testFile, delimiter=',', usecols=range(2,11))
 matrix_test = np.nan_to_num(matrix_test)
 
-if arg.norm:
+if args.norm:
 	for i in range(matrix_test.shape[0]):
 		matrix_test[i,:] = (matrix_test[i,:]-trainSet_mean[i%18])/trainSet_stdev[i%18]
 
