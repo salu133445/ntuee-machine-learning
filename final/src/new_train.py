@@ -11,14 +11,14 @@ from keras.layers import Dense,Dropout
 from keras.callbacks import ModelCheckpoint
 from sklearn.preprocessing import minmax_scale
 from keras.wrappers.scikit_learn import KerasRegressor
-
+import sys
 
 # In[2]:
 max_rows = None
 """ Numercial Data Preprocessing """
 print('Reading Numercial Data')
-train_data_numercial = pd.read_csv('train', delimiter=',', header=None, dtype=float, usecols=([0]+list(range(4,19))+list(range(20,41))), nrows=max_rows)
-test_data_numercial = pd.read_csv('test.in', delimiter=',', header=None, dtype=float, usecols=([0]+list(range(4,19))+list(range(20,41))), nrows=max_rows)
+train_data_numercial = pd.read_csv(sys.argv[1], delimiter=',', header=None, dtype=float, usecols=([0]+list(range(4,19))+list(range(20,41))), nrows=max_rows)
+test_data_numercial = pd.read_csv(sys.argv[3], delimiter=',', header=None, dtype=float, usecols=([0]+list(range(4,19))+list(range(20,41))), nrows=max_rows)
 print('Normalizing Numercial Data')
 all_numercial_normalized = np.concatenate((train_data_numercial.values, test_data_numercial.values ), axis=0)
 all_numercial_normalized = minmax_scale(all_numercial_normalized, feature_range=(0, 1), copy=True, axis=0)
@@ -32,8 +32,8 @@ test_data_numercial[:] = all_numercial_normalized[len(train_data_numercial):, :]
 """ Categorical Data Preprocessing """
 print('Reading Categorical Data')
 
-train_data_categorical = pd.read_csv('train', delimiter=',', header=None, usecols=[1,2,3], dtype=str, names = [ 'protocol_type', 'service', 'flag'], nrows=max_rows )
-test_data_categorical = pd.read_csv('test.in', delimiter=',', header=None, usecols=[1,2,3], dtype=str, names = [ 'protocol_type', 'service', 'flag'], nrows=max_rows )
+train_data_categorical = pd.read_csv(sys.argv[1], delimiter=',', header=None, usecols=[1,2,3], dtype=str, names = [ 'protocol_type', 'service', 'flag'], nrows=max_rows )
+test_data_categorical = pd.read_csv(sys.argv[3], delimiter=',', header=None, usecols=[1,2,3], dtype=str, names = [ 'protocol_type', 'service', 'flag'], nrows=max_rows )
 
 print('Expanding Categorical Data')
 all_categorical = pd.concat( (train_data_categorical, test_data_categorical), axis=0 )
@@ -54,7 +54,7 @@ print('Reading Label Data')
 attack_expand_type_names = ['normal', 'u2r', 'r2l', 'probe', 'apache2', 'back', 'mailbomb', 'processtable', 'snmpgetattack', 'teardrop', 'smurf', 'land', 'neptune', 'pod', 'udpstorm']
 attack_expand_type_dict = {'normal':0}
 attack_dos_subtype_names = ['apache2', 'back', 'mailbomb', 'processtable', 'snmpgetattack', 'teardrop', 'smurf', 'land', 'neptune', 'pod', 'udpstorm']
-with open( 'training_attack_types.txt', 'r' ) as file:
+with open( sys.argv[2], 'r' ) as file:
 	for line in file.readlines():
 		if line.strip().split(' ')[1] == 'dos':
 			attack_expand_type_dict[line.split(' ')[0]] = attack_expand_type_names.index(line.strip().split(' ')[0])
@@ -66,8 +66,7 @@ attack_type_dict = {'normal':0, 'u2r':2, 'r2l':3, 'probe':4}
 for subtype_name in attack_dos_subtype_names:
 	attack_type_dict[subtype_name] = 1
 
-
-attack_txt =pd.read_csv('training_attack_types.txt',delimiter=' ',names=['subtype','type'],dtype=str)
+attack_txt =pd.read_csv(sys.argv[2], delimiter=' ',names=['subtype','type'],dtype=str)
 
 
 #attack_names = pd.DataFrame(attack_expand_type_names)
@@ -76,7 +75,7 @@ attack_txt =pd.read_csv('training_attack_types.txt',delimiter=' ',names=['subtyp
 
 #TODO the converter seems wrong
 #train_labels2 = pd.read_csv('train', delimiter=',', header=None, usecols=[41], names=['labels'], converters={41: lambda s: attack_txt.subtype[s[:-1]]}, nrows=max_rows)
-train_labels = pd.read_csv('train', delimiter=',', header=None, usecols=[41], names=['labels'], converters={41: lambda s: attack_expand_type_dict[s[:-1]]}, nrows=max_rows)
+train_labels = pd.read_csv(sys.argv[1], delimiter=',', header=None, usecols=[41], names=['labels'], converters={41: lambda s: attack_expand_type_dict[s[:-1]]}, nrows=max_rows)
 
 train_labels_expand = pd.get_dummies( train_labels['labels'], prefix='labels', sparse=False ).astype(bool)
 
@@ -87,13 +86,13 @@ train_labels_expand = pd.get_dummies( train_labels['labels'], prefix='labels', s
 print('Training Model')
 model = Sequential()
 model.add( Dense( train_data_expand.shape[1], input_dim=train_data_expand.shape[1], init='normal', activation='relu' ) )
-model.add( Dense( 500, init='normal', activation='relu' ) )
+model.add( Dense( 500, init='normal', activation='sigmoid' ) )
 model.add(Dropout(0.5))
-model.add( Dense( 800, init='normal', activation='relu' ) )
+model.add( Dense( 800, init='normal', activation='sigmoid' ) )
 model.add(Dropout(0.5))
 model.add( Dense( 250, init='normal', activation='relu' ) )
 model.add(Dropout(0.5))
-model.add( Dense( 100, init='normal', activation='relu' ) )
+model.add( Dense( 100, init='normal', activation='sigmoid' ) )
 model.add(Dropout(0.5))
 model.add( Dense( train_labels_expand.shape[1], init='normal', activation='sigmoid' ) )
 model.compile( loss='binary_crossentropy', optimizer='adam',  metrics=['accuracy'] )
@@ -101,8 +100,8 @@ model.summary()
 
 
 # In[8]:
-
-shuffled_index = np.random.shuffle(np.arange(train_data_expand.shape[0]))
+shuffled_index = np.arange(train_data_expand.shape[0])
+np.random.shuffle(shuffled_index)
 shuffled_X = train_data_expand.as_matrix()[shuffled_index].reshape(train_data_expand.shape[0], train_data_expand.shape[1])
 shuffled_Y = train_labels_expand.as_matrix()[shuffled_index].reshape(train_labels_expand.shape[0], train_labels_expand.shape[1])
 
@@ -111,7 +110,7 @@ shuffled_Y = train_labels_expand.as_matrix()[shuffled_index].reshape(train_label
 #shuffled_X_Y = np.random.shuffle( shuffled_X_Y )
 
 
-validation_split = 0.25
+validation_split = 0.3
 validation_cut_point = (1-validation_split)*shuffled_X.shape[0]
 val_X = shuffled_X[validation_cut_point:]
 val_Y = shuffled_Y[validation_cut_point:]
@@ -119,7 +118,7 @@ shuffled_X = shuffled_X[:validation_cut_point]
 shuffled_Y = shuffled_Y[:validation_cut_point]
 
 checkpoint = ModelCheckpoint('mymodel.h5', monitor='val_loss', save_best_only=True, mode='auto')
-model.fit(shuffled_X, shuffled_Y, nb_epoch=60, batch_size=5000, validation_data=(val_X, val_Y), callbacks=[checkpoint] )
+model.fit(shuffled_X, shuffled_Y, nb_epoch=20, batch_size=5000, validation_data=(val_X, val_Y), callbacks=[checkpoint] )
 
 """
 model.load( 'mymodel.h5' )
@@ -158,7 +157,7 @@ print(predictions.shape)
 # In[15]:
 
 write_to_file = np.column_stack(((np.arange(predictions.shape[0])+1), predictions))
-np.savetxt('predictions.csv', write_to_file, delimiter=",", header="id,label", comments='' ,fmt='%i')
+np.savetxt(sys.argv[4], write_to_file, delimiter=",", header="id,label", comments='' ,fmt='%i')
 print('Saved predictions to disk')
 
 
